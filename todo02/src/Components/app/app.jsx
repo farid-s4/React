@@ -10,12 +10,46 @@ export default class App extends Component {
 
     state = {
         todos:[
-            {label: "Выйти на перемену", important: false, id:1},
-            {label: "Курение вредно", important: true, id:2},
-            {label: "А муха тоже вертолет.", important: false, id:3},
-            {label: "Но без корбки передач.", important: false, id:4}
+            {label: "Выйти на перемену", important: false, id:1, done: false},
+            {label: "Курение вредно", important: true, id:2, done: true},
+            {label: "А муха тоже вертолет.", important: false, id:3, done: true},
+            {label: "Но без корбки передач.", important: false, id:4, done: false},
         ]
     }
+    onActiveButton = (props) =>{
+        this.setState(({todos})=>{
+            const newTodos = todos.filter(item=> item.done===false);
+            return { todos: newTodos, }
+        })
+    }
+
+    toggleProperty =(arr, id, propName)=>{
+        const idx = arr.findIndex(item=>item.id === id);
+        const oldItem = arr[idx];
+        const value = !oldItem[propName];
+        const item = {...arr[idx], [propName]: value};
+        console.log(item);
+        return [
+            ...arr.slice(0, idx),
+            item,
+            ...arr.slice(idx+1)
+        ]
+    }
+
+    onToggleDone = (id) => {
+        this.setState(({state})=>{
+            const items = this.toggleProperty(this.state.todos, id, 'done');
+            return {todos:items}
+        })
+    }
+
+    onToggleImportant = (id) => {
+        this.setState(({state})=>{
+            const items = this.toggleProperty(this.state.todos, id, 'important');
+            return {todos:items}
+        })
+    }
+
     onDeleted = (id) => {
        this.setState(({todos})=>{
            const index = todos.findIndex(item=>item.id === id);
@@ -40,13 +74,18 @@ export default class App extends Component {
             }
         })
     }
+
+
     render(){
         return (
             <div className="App">
                 <AppHeader todo={1} done={3}/>
                 <div className="top-panel d-flex">
                     <SearchPanel/>
-                    <ItemStatusFilter/>
+                    <ItemStatusFilter
+                        todos={this.state.todos}
+                        onActiveButton = {this.onActiveButton}
+                    />
                 </div>
 
                 <TodoList
